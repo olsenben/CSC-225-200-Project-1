@@ -1,1 +1,3 @@
-"Dilla Time", NonFictionBook(title, year, author, genre, pages)
+date_added,media_type,title,year,creator,creator_dob,genre,pages,book_type,duration,narrator,features
+2025-03-13 17:38:25.614143,Book,Dilla Time,2022,Dan Charnas,1967,Biography,480,Nonfiction,,,
+2025-03-13 17:42:00.408195,Dvd,The Abyss,1989,James Cameron,1954,Action,,,480,,"Ed Harris, Mary Elizabeth Mastrantonio, Michael Biehn"
