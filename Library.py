@@ -97,6 +97,10 @@ class Library:
     def remove_media(self):
         pass
 
+    def print_from_list(self, list):
+        """because search results will be a list, \n will not be interpreted correctly"""
+        return [print(item) for item in list]
+
     def is_close_match(self, term, media, cutoff=0.4):
         """returns True if term is a near match"""
         media_list = [media]
@@ -106,20 +110,22 @@ class Library:
         """title search, returns a list. Does not need to be exact match"""
         results = []
         if search_type == "Title":
-            results = [str(media) for media in self.library_contents if self.is_close_match(query, media.title)]
+            results = [media for media in self.library_contents if self.is_close_match(query, media.title)]
         elif search_type == "Creator":
-            results = [str(media) for media in self.library_contents if self.is_close_match(query, media.creator)]
+            results = [media for media in self.library_contents if self.is_close_match(query, media.creator.name)]
         elif search_type == "Genre":
-            results = [str(media) for media in self.library_contents if self.is_close_match(query, media.genre)]
+            results = [media for media in self.library_contents if self.is_close_match(query, media.genre)]
         return results if len(results)>0 else "No results"
 
-library_test = Library("library.csv")
+#library_test = Library("library.csv")
 
 #book = Book("Dilla Time", 2022, "Dan Charnas", 1967, "Biography", 480,"Nonfiction" )
 #library_test.add_book("Dilla Time", 2022, "Dan Charnas", 1967, "Biography", 480,"Nonfiction")
 #library_test.add_dvd("The Abyss", 1989, "James Cameron", 1954 , "Action", 480,["Ed Harris","Mary Elizabeth Mastrantonio","Michael Biehn"])
-print(library_test.search_media("abiss", "Title"))
-     
+#library_test.print_from_list(library_test.search_media("dilla", "Title"))
+
+#dvd = Dvd("The Abyss", 1989, "James Cameron", "Sci-Fi", ["Ed Harris", "Mary Elizabeth Mastrantonio", "Michael Biehn"])
+
 #user input 
 #not a valid input, type help for
 

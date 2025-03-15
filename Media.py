@@ -29,7 +29,13 @@ class Book(Media):
         self.media_type = "Book"
 
     def __str__(self):
-        return f"Title: {self.title}, \nAuthor: {self.creator.name}, \nPublished: {self.year}, \nType: {self.book_type}, \nGenre: {self.genre}"
+        return (
+            f"Title: {self.title}\n"
+            f"Author: {self.creator.name}\n"
+            f"Published: {self.year}\n"
+            f"Type: {self.book_type}\n"
+            f"Genre: {self.genre}"
+        )
         
 
 class AudioBook(Book):
@@ -41,7 +47,13 @@ class AudioBook(Book):
         self.media_type = "AudioBook"
 
     def __str__(self):
-        return f"Title: {self.title}, \nAuthor: {self.creator.name}, \nPublished: {self.year}, \nGenre: {self.genre},\nNarration By: {self.narrator}"
+        return (
+            f"Title: {self.title}\n"
+            f"Author: {self.creator.name}\n"
+            f"Published: {self.year}\n"
+            f"Genre: {self.genre}\n"
+            f"Narration By: {self.narrator}"
+        )
     
 class Dvd(Media):
     """DVd type media class. I dont even own a dvd player."""
@@ -53,7 +65,13 @@ class Dvd(Media):
 
 
     def __str__(self):
-        return f"Title: {self.title}, \nDirector: {self.creator.name}, \nReleased: {self.year},\nGenre: {self.genre}, \nFeaturing: {", ".join(self.features)}"
+        return (
+            f"Title: {self.title}\n"
+            f"Director: {self.creator.name}\n"
+            f"Released: {self.year}\n"
+            f"Genre: {self.genre}\n"
+            f"Featuring: {", ".join(self.features)}"
+        )
     
 
 
