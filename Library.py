@@ -94,8 +94,40 @@ class Library:
             writer.writerow(row)
             print("media saved")
 
-    def remove_media(self):
-        pass
+    #for some reason this deletes the entire database except the one I wanted to delete
+    def delete_media(self, media):
+        for other_media in self.library_contents:
+            if  str(other_media) == media:
+                self.library_contents.remove(other_media)
+                print("Media Removed")
+
+        with open(self.file_name, "w", newline='') as file:
+            for final_media in self.library_contents:
+                #again should probably handle fieldnames dynamically buuuuuuuuuuuuuuuuuuuuuuuut
+                fieldnames = ["date_added","media_type","title", "year", "creator", "creator_dob","genre", "pages", "book_type","duration", "narrator", "features"]
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                row = {
+                    "date_added" : final_media.date_added,
+                    "media_type" : final_media.media_type,
+                    "title" : final_media.title,
+                    "year" : final_media.year,
+                    "creator" : final_media.creator.name,
+                    "creator_dob" : final_media.creator.year_of_birth,
+                    "genre" : final_media.genre,
+                    #anything below this line depends on type of media object as they dont all have the same attributes
+                    #getattr allows us to return a default value if the attribute doesnt exist
+                    "pages" : getattr(final_media, "pages",None), 
+                    "book_type" : getattr(final_media, "book_type",None),
+                    "duration" : getattr(final_media, "duration",None),
+                    "narrator" : getattr(final_media, "narrator",None),
+                    #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
+                    "features" : ", ".join(getattr(final_media, "features",None)) if getattr(media, "features",None) is not None else None
+                }
+                writer.writerow(row)
+        print("Data Rewritten")
+
+    #def media_match(self, media, other_media):
+    #    return media.media_type == other_media.media_type and str(media) == str(other_media)
 
     # def print_from_list(self, list):
     #     """because search results will be a list, \n will not be interpreted correctly"""
