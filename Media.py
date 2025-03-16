@@ -33,6 +33,7 @@ class Book(Media):
             f"Title: {self.title}\n"
             f"Author: {self.creator.name}\n"
             f"Published: {self.year}\n"
+            f"Length: {self.pages}\n"
             f"Type: {self.book_type}\n"
             f"Genre: {self.genre}"
         )
@@ -72,7 +73,7 @@ class Dvd(Media):
             f"Released: {self.year}\n"
             f"Genre: {self.genre}\n"
             f"Duration: {self.duration}min\n"
-            f"Featuring: {", ".join(self.features)}"
+            f"Featuring: {(self.features)}"
         )
     
 

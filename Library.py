@@ -21,8 +21,7 @@ class Library:
         elif media_type == "AudioBook":
             return AudioBook(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["pages"], row["book_type"], row["duration"], row["narrator"])
         elif media_type == "Dvd":
-            #note that I need to convert list for features into list for whatever reason idk why I did that
-            return Dvd(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["duration"], row["features"].split(', '))
+            return Dvd(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["duration"], row["features"])
         else:
             raise ValueError(f"Unknown media type: {media_type}")
         
@@ -47,7 +46,7 @@ class Library:
             print("Library empty! Please add media.")
             return []
 
-
+    #I was going to make these all one function but maybe some other time
     def add_book(self, title, year, creator, creator_dob, genre, pages, book_type):
         """adds book type media to media list and saves to csv"""
         book = Book(title, year, creator, creator_dob, genre,datetime.datetime.now, pages, book_type)
@@ -89,25 +88,30 @@ class Library:
                 "duration" : getattr(media, "duration",None),
                 "narrator" : getattr(media, "narrator",None),
                 #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
-                "features" : ", ".join(getattr(media, "features",None)) if getattr(media, "features",None) is not None else None
+                "features" : getattr(media, "features",None)
             }
             writer.writerow(row)
             print("media saved")
 
-    #for some reason this deletes the entire database except the one I wanted to delete
     def delete_media(self, media):
-        for other_media in self.library_contents:
-            if  str(other_media) == media:
+        """removes media selected in combobox. media in the combobox is a str, not an object"""
+        for other_media in self.library_contents: #library_contents is in memory
+            if  str(other_media) == media: #media is a str
                 self.library_contents.remove(other_media)
                 print("Media Removed")
 
+        #open file and rewrite library from memory into csv file. idk if this is the best way to do this
+        #but chatgpt told me its standard practice. Honestly it could tell me anything and id be like okay
         with open(self.file_name, "w", newline='') as file:
+            #rewrite headers. using a csv writer is redundant but I ran out of time and this works
+            fieldnames = ["date_added","media_type","title", "year", "creator", "creator_dob","genre", "pages", "book_type","duration", "narrator", "features"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            csv_writer = csv.writer(file)
+            csv_writer.writerow(fieldnames)
             for final_media in self.library_contents:
                 #again should probably handle fieldnames dynamically buuuuuuuuuuuuuuuuuuuuuuuut
-                fieldnames = ["date_added","media_type","title", "year", "creator", "creator_dob","genre", "pages", "book_type","duration", "narrator", "features"]
-                writer = csv.DictWriter(file, fieldnames=fieldnames)
                 row = {
-                    "date_added" : final_media.date_added,
+                    "date_added" : str(final_media.date_added),
                     "media_type" : final_media.media_type,
                     "title" : final_media.title,
                     "year" : final_media.year,
@@ -121,10 +125,19 @@ class Library:
                     "duration" : getattr(final_media, "duration",None),
                     "narrator" : getattr(final_media, "narrator",None),
                     #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
-                    "features" : ", ".join(getattr(final_media, "features",None)) if getattr(media, "features",None) is not None else None
+                    "features" : getattr(final_media, "features",None) 
                 }
                 writer.writerow(row)
         print("Data Rewritten")
+
+    def match_media(self, media):
+        condition = False
+        while condition == False:
+            for other_media in self.library_contents: #library_contents is in memory
+                if  str(other_media) == media: #media is a str
+                    condition = True
+                    return other_media
+
 
     #def media_match(self, media, other_media):
     #    return media.media_type == other_media.media_type and str(media) == str(other_media)
@@ -134,7 +147,7 @@ class Library:
     #     return [print(item) for item in list]
 
     def is_close_match(self, term, media, cutoff=0.4):
-        """returns True if term is a near match"""
+        """returns True if term is a near match. this isnt the best way to do searches because it doesnt work with keywords"""
         media_list = [media]
         return len(get_close_matches(term,media_list, cutoff=cutoff)) == 1
 
@@ -147,6 +160,7 @@ class Library:
             results = [media for media in self.library_contents if self.is_close_match(query, media.creator.name)]
         elif search_type == "Genre":
             results = [media for media in self.library_contents if self.is_close_match(query, media.genre)]
+        #note that printing from this list directly will screw up formatting
         return results if len(results)>0 else "No results"
 
 #library_test = Library("library.csv")
