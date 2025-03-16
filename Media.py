@@ -2,7 +2,7 @@
 contains Media class 
 """
 
-class Creator: #might move to own file
+class Creator: 
     """represents author or director"""
     def __init__(self, name, year_of_birth):
         self.name = name
@@ -52,6 +52,7 @@ class AudioBook(Book):
             f"Author: {self.creator.name}\n"
             f"Published: {self.year}\n"
             f"Genre: {self.genre}\n"
+            f"Duration: {self.duration}min\n"
             f"Narration By: {self.narrator}"
         )
     
@@ -70,6 +71,7 @@ class Dvd(Media):
             f"Director: {self.creator.name}\n"
             f"Released: {self.year}\n"
             f"Genre: {self.genre}\n"
+            f"Duration: {self.duration}min\n"
             f"Featuring: {", ".join(self.features)}"
         )
     

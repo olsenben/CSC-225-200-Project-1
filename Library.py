@@ -19,7 +19,7 @@ class Library:
         if media_type == "Book":
             return Book(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["pages"], row["book_type"])
         elif media_type == "AudioBook":
-            return AudioBook(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["duration"], row["narrator"])
+            return AudioBook(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["pages"], row["book_type"], row["duration"], row["narrator"])
         elif media_type == "Dvd":
             #note that I need to convert list for features into list for whatever reason idk why I did that
             return Dvd(row["title"], int(row["year"]), row["creator"], row["creator_dob"], row["genre"], row["date_added"], row["duration"], row["features"].split(', '))
@@ -88,7 +88,7 @@ class Library:
                 "book_type" : getattr(media, "book_type",None),
                 "duration" : getattr(media, "duration",None),
                 "narrator" : getattr(media, "narrator",None),
-                #needed a way to handle lists. I guess was the idea was I could search by features
+                #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
                 "features" : ", ".join(getattr(media, "features",None)) if getattr(media, "features",None) is not None else None
             }
             writer.writerow(row)
@@ -97,9 +97,9 @@ class Library:
     def remove_media(self):
         pass
 
-    def print_from_list(self, list):
-        """because search results will be a list, \n will not be interpreted correctly"""
-        return [print(item) for item in list]
+    # def print_from_list(self, list):
+    #     """because search results will be a list, \n will not be interpreted correctly"""
+    #     return [print(item) for item in list]
 
     def is_close_match(self, term, media, cutoff=0.4):
         """returns True if term is a near match"""
