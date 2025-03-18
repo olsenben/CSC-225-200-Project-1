@@ -40,23 +40,25 @@ class LibraryApp(tk.Tk):
         self.search_button.grid(column=2, row=0)
 
         #show results in a tree with columns "Title" and "Creator"
-        self.columns = ["Title", "Creator","Type"]
+        self.columns = ["Title", "Creator","Type","Date Added"]
         self.results_tree = ttk.Treeview(self, columns=self.columns, show="headings", height=10)
+        #insert headings
         for col in self.columns:
             self.results_tree.heading(col, text=col, command=lambda c=col: self.sort_treeview(self.results_tree, c, False))
         self.results_tree.column("Title", width=250)
         self.results_tree.column("Creator", width=150)
         self.results_tree.column("Type", width=100)
+        self.results_tree.column("Date Added", width=100)
         self.results_tree.pack(pady=10)
         self.sort_order = {col: False for col in self.columns}  # False = ascending, True = descending
 
 
-        #add scrollbar to treeview
+        #add scrollbar to treeview. Im having trouble getting this to work
         self.scrollbar = ttk.Scrollbar(self, orient='vertical',command=self.results_tree.yview) #initialize scrollbar in frame
         self.results_tree.config(yscrollcommand= self.scrollbar.set) #make srollbar change y axis when scrolled 
         self.scrollbar.pack(side='right', fill='y')
 
-        #bind click event for selecting from combobox
+        #bind click event for selecting from resultstree
         self.results_tree.bind("<ButtonRelease-1>", self.show_details)
 
         #show details in textbox
@@ -95,7 +97,7 @@ class LibraryApp(tk.Tk):
         #a combobox is organized as a dictionary if I recall correctly
         if isinstance(results, list): 
             for media in results:
-                self.results_tree.insert("", "end", values=(media.title, media.creator,media.media_type), tags=(media,))
+                self.results_tree.insert("", "end", values=(media.title, media.creator,media.media_type,media.date_added), tags=(media,))
         else:
             self.results_tree.insert("","end", values=("No Results Found",""))
 
@@ -118,7 +120,7 @@ class LibraryApp(tk.Tk):
         self.details.config(state=tk.NORMAL) #enable text widget
         self.details.delete("1.0", tk.END) #clear it
         self.details.config(state=tk.DISABLED) #disable again
-        self.perform_search() #consider trying to just remove the selected item from the combobox instead of rerunning the search
+        self.perform_search() #consider trying to just remove the selected item from the treeview instead of rerunning the search
 
     def go_to_add_media_window(self):
         "unhides the add media window"
@@ -129,7 +131,9 @@ class LibraryApp(tk.Tk):
         try:
             selected_item = self.results_tree.selection() #get selection
             media_str = self.results_tree.item(selected_item)["tags"][0]
-            media_match = self.library.match_media(media_str)
+            #find matching object in library memory. media_match takes a string and returns matching object in memory
+            media_match = self.library.match_media(media_str) 
+            #pass the object to the editor to prepopulate fields
             self.add_media_window.show_edit_window(media_match)
         except IndexError:
             messagebox.showerror("Input Error", "Nothing Selected")
@@ -137,7 +141,7 @@ class LibraryApp(tk.Tk):
     # Sorting function
     def sort_treeview(self,tree, col, descending):
         """Sorts the Treeview column when clicked."""
-        # Get data from tree
+        # Get data from treeview
         data_list = [(tree.set(item, col), item) for item in tree.get_children("")]
 
         # Try converting to integer for proper sorting (e.g., sorting years numerically)
@@ -146,7 +150,7 @@ class LibraryApp(tk.Tk):
         except ValueError:
             pass  # Keep as strings if conversion fails
 
-        # Sort data
+        # Sort data according to descending or ascending, False = ascending, True = descending
         data_list.sort(reverse=descending)
 
         # Rearrange items in tree

@@ -10,7 +10,7 @@ from difflib import get_close_matches
 class Library:
     """class that holds the library collection. contains methods for loading, adding, and deleting media"""
     def __init__(self,file_name):
-        self.library_contents = self.load_library_from_csv(file_name) 
+        self.library_contents = self.load_library_from_csv(file_name) #load into memory
         self.file_name = file_name #name of csv
     
     def media_maker(self,row):
@@ -87,31 +87,34 @@ class Library:
                 "book_type" : getattr(media, "book_type",None),
                 "duration" : getattr(media, "duration",None),
                 "narrator" : getattr(media, "narrator",None),
-                #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
                 "features" : getattr(media, "features",None)
             }
             writer.writerow(row)
             print("media saved")
 
     def delete_media(self, media):
-        """removes media selected in combobox. media in the combobox is a str, not an object"""
+        """removes media selected in treeview. media in the treeview is a str, not an object"""
         for other_media in self.library_contents: #library_contents is in memory
             if  str(other_media) == media: #media is a str
                 self.library_contents.remove(other_media)
                 print("Media Removed")
 
-        #open file and rewrite library from memory into csv file. idk if this is the best way to do this
-        #but chatgpt told me its standard practice. Honestly it could tell me anything and id be like okay
+        #update file to match library in memory
+        self.update_media_file()
+
+
+    def update_media_file(self):
+        """updates file to match library in memory"""
+        #open file and rewrite library from memory into csv file. 
         with open(self.file_name, "w", newline='') as file:
             #rewrite headers. using a csv writer is redundant but I ran out of time and this works
             fieldnames = ["date_added","media_type","title", "year", "creator", "creator_dob","genre", "pages", "book_type","duration", "narrator", "features"]
             writer = csv.DictWriter(file, fieldnames=fieldnames)
-            csv_writer = csv.writer(file)
-            csv_writer.writerow(fieldnames)
+            csv_writer = csv.writer(file) #lmao
+            csv_writer.writerow(fieldnames) 
             for final_media in self.library_contents:
-                #again should probably handle fieldnames dynamically buuuuuuuuuuuuuuuuuuuuuuuut
                 row = {
-                    "date_added" : str(final_media.date_added),
+                    "date_added" : str(final_media.date_added),#this is a datetime object so must be converted into a str
                     "media_type" : final_media.media_type,
                     "title" : final_media.title,
                     "year" : final_media.year,
@@ -124,19 +127,19 @@ class Library:
                     "book_type" : getattr(final_media, "book_type",None),
                     "duration" : getattr(final_media, "duration",None),
                     "narrator" : getattr(final_media, "narrator",None),
-                    #needed a way to handle lists. I guess the idea was I could search by features but we aint gonna bother with that rn
                     "features" : getattr(final_media, "features",None) 
                 }
                 writer.writerow(row)
-        print("Data Rewritten")
+        print("Data Updated")
 
-    def match_media(self, media):
+    def match_media(self, media: str) -> object:
+        """searches for matching media entry in memory (library.library_contents)"""
         condition = False
         while condition == False:
             for other_media in self.library_contents: #library_contents is in memory
-                if  str(other_media) == media: #media is a str
+                if  str(other_media) == media: #media is a str because it comes from the treeview selection
                     condition = True
-                    return other_media
+                    return other_media #return matching media
 
 
     #def media_match(self, media, other_media):
@@ -147,7 +150,7 @@ class Library:
     #     return [print(item) for item in list]
 
     def is_close_match(self, term, media, cutoff=0.4):
-        """returns True if term is a near match. this isnt the best way to do searches because it doesnt work with keywords"""
+        """returns True if term is a near match. this isnt the best way to do searches because it doesnt work with short keyword searches"""
         media_list = [media]
         return len(get_close_matches(term,media_list, cutoff=cutoff)) == 1
 
