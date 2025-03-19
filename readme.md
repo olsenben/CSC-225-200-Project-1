@@ -17,11 +17,11 @@ All dependencies are default to python. To run, clone repo and run LibraryFrontE
 -Basic validation for user inputs\
 -Validation against duplicates\
 -Loads from and saves to a csv file (see sample csv with examples)\
--If csv does not exist, it will generate itself\
+-If csv does not exist, it will generate itself
 
 ## Limitations
 -search is handled by difflib get_close_matches. Not really optimal for keyword searches but handles phrases well\
 -I really didn't design this to handle a large database, so don't push it too much\
 -You cannot convert media types in editing. I have no idea why, it really should be possible but it just does not work and I am out of energy\
--the majority of the work went into building a GUI, which I decided to add after writing much of the back end. I did my best to document everything but it's a little messy under the hood.
+-the majority of the work went into building a GUI, which I decided to add after writing much of the back end. I did my best to document everything but it's a little messy under the hood.\
 -almost forgot, but scrollbar is not working. Nasty one.
