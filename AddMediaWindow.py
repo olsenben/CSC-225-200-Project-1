@@ -162,7 +162,7 @@ class AddMediaWindow(tk.Toplevel):
         except ValueError:
             #check that all fields are filled out. digits are validated separately 
             messagebox.showerror("Input Error", "Please fill all fields") 
-            raise
+            raise ValueError
 
     def validate_fields(self,fields: dict) -> dict:
         """validates entry inputs and raises appropriate errors if they are filled incorrectly, 
@@ -176,7 +176,7 @@ class AddMediaWindow(tk.Toplevel):
 
         #ensure that the attribute exists before validating it
         for entry in digit_fields:
-            if hasattr(fields, entry):
+            if entry in fields:
                 self.check_valid_digit(fields[entry],entry)
 
         #check that genre doesnt have any digits
@@ -184,9 +184,10 @@ class AddMediaWindow(tk.Toplevel):
             pass
         else:
             messagebox.showerror("Input Error", "Please input valid genre with no numbers or special characters")
-            raise
+            raise ValueError
 
         #return validated dictionary
+        print("fields validated")
         return fields
 
     def check_valid_digit(self, entry: str, digit_type: str):
@@ -198,18 +199,21 @@ class AddMediaWindow(tk.Toplevel):
         
         """
         #I was really generous with the upper limits, honestly not sure if they're necessary
-        if digit_type == "year" or "creator_dob":
+        if digit_type == "year" or digit_type == "creator_dob":
             check_len = 4
-            upper, lower = 999, 9999
+            lower, upper = 999, 9999
             digit_format = ", format: (0000)"
-        if digit_type == "pages":
-            check_len = 5
+        elif digit_type == "pages":
+            check_len = len(entry)
             digit_format =''
-            upper, lower = 0, 100000
-        if digit_type == "duration":
-            check_len = 6
-            upper, lower = 0, 200000
+            lower, upper = 0, 100000
+        elif digit_type == "duration":
+            check_len = len(entry)
+            lower, upper = 0, 200000
             digit_format = ''
+        else: 
+            messagebox.showerror("Input Error", f"Unknown field: {digit_type}")
+            raise ValueError
 
         #check that they are digits and correct length
         if entry.isdigit() and len(entry) == check_len:
@@ -217,17 +221,17 @@ class AddMediaWindow(tk.Toplevel):
                 #try converting to integer
                 as_int = int(entry)
                 #check that it is within limits
-                if lower < as_int < upper:
-                    pass
+                if lower <= as_int <= upper:
+                    return
                 else:
                     messagebox.showerror("Input Error", f"Please input valid {digit_type} between {upper} and {lower}")
-                    raise
+                    raise ValueError
             except ValueError:
                 messagebox.showerror("Input Error", f"Please input valid {digit_type}{digit_format}")
-                raise
+                raise ValueError
         else:
             messagebox.showerror("Input Error", f"Please input valid {digit_type}{digit_format}")
-            raise
+            raise ValueError
  
     
 
@@ -374,9 +378,7 @@ class AddMediaWindow(tk.Toplevel):
 
             if hasattr(media_match, key):
                 setattr(media_match, key, value)
-         
-        print([i.genre for i in self.parent.library.library_contents])
- 
+          
         #check for duplicates
         self.parent.library.check_for_duplicate(str(media_match))
         

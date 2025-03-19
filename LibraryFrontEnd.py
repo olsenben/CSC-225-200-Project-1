@@ -16,32 +16,47 @@ class LibraryApp(tk.Tk):
         self.search_options = ["Title", "Creator", "Genre", "Year"] #default values for combobox options
         self.add_media_window = AddMediaWindow(self) #instance of window for adding new media, 
 
-        #search bar label
-        self.search_label = tk.Label(self,text="Library Search:")
-        self.search_label.pack(pady=5)
-
         #frame for search grid
         self.search_frame = ttk.Frame(self)
-        self.search_frame.pack()
+        self.search_frame.pack(pady=5)
+
+        #search bar label
+        self.search_type_label = tk.Label(self.search_frame, text="Search By:")
+        self.search_bar_label = tk.Label(self.search_frame, text="Search Term:")
+        self.search_filter_label = tk.Label(self.search_frame, text="Filter By:")
+        
+        #assing labels to grid
+        self.search_type_label.grid(column=0, row=0)
+        self.search_bar_label.grid(column=1, row=0)
+        self.search_filter_label.grid(column=2, row=0)
 
         #Create drop down menu for search parameter
         self.search_type = tk.StringVar(value="Search By") #placeholder for selected value for combobox
         self.combobox = ttk.Combobox(self.search_frame, textvariable=self.search_type, values=self.search_options,state="readonly")
         self.combobox.current(0) #this is not working idk why, something to do with how python handles garabage collection
-        self.combobox.grid(column=0,row=0)
+        self.combobox.grid(column=0,row=2)
+
 
         #entry widget for input
         self.search_entry = tk.Entry(self.search_frame)
-        self.search_entry.grid(column=1,row=0)
+        self.search_entry.grid(column=1,row=2)
 
-        #search button. No fuction currently applied to event
+        #create filter by media type combobox
+        self.filter_type = tk.StringVar(value="None")
+        self.media_options = ["None","Book","AudioBook","Dvd"]
+        self.filter_combobox = ttk.Combobox(self.search_frame, textvariable=self.filter_type, values=self.media_options,state="readonly")
+        self.combobox.current(0)
+        self.filter_combobox.grid(column=2, row=2)
+
+        #search button.
         self.search_button = tk.Button(self.search_frame, text="Search",command=self.perform_search)
         self.bind("<Return>", lambda event: self.perform_search())
-        self.search_button.grid(column=2, row=0)
+        self.search_button.grid(column=3, row=2)
 
         #show results in a tree with columns "Title" and "Creator"
         self.columns = ["Title", "Creator","Type","Date Added"]
         self.results_tree = ttk.Treeview(self, columns=self.columns, show="headings", height=10)
+        
         #insert headings
         for col in self.columns:
             self.results_tree.heading(col, text=col, command=lambda c=col: self.sort_treeview(self.results_tree, c, False))
@@ -51,7 +66,6 @@ class LibraryApp(tk.Tk):
         self.results_tree.column("Date Added", width=100)
         self.results_tree.pack(pady=10)
         self.sort_order = {col: False for col in self.columns}  # False = ascending, True = descending
-
 
         #add scrollbar to treeview. Im having trouble getting this to work
         self.scrollbar = ttk.Scrollbar(self, orient='vertical',command=self.results_tree.yview) #initialize scrollbar in frame
@@ -87,9 +101,10 @@ class LibraryApp(tk.Tk):
         #get the query and search type 
         query = self.search_entry.get().strip().lower()
         search_type = self.search_type.get()
+        filter_by = self.filter_type.get()
 
         #search for results
-        results = self.library.search_media(query, search_type)#using get_close_matches. its okay, not the best
+        results = self.library.search_media(query, search_type, filter_by)#using get_close_matches. its okay, not the best
 
         #clear old results tree
         for item in self.results_tree.get_children():
@@ -123,7 +138,7 @@ class LibraryApp(tk.Tk):
         self.details.config(state=tk.NORMAL) #enable text widget
         self.details.delete("1.0", tk.END) #clear it
         self.details.config(state=tk.DISABLED) #disable again
-        self.perform_search() #consider trying to just remove the selected item from the treeview instead of rerunning the search
+        self.results_tree.item(selected_item, open=False)#consider trying to just remove the selected item from the treeview instead of rerunning the search
 
     def go_to_add_media_window(self):
         "unhides the add media window"

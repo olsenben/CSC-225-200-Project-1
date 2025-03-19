@@ -49,8 +49,12 @@ class Library:
         if file_exists:
             with open(file_name, "r",newline="") as file:
                 reader = csv.DictReader(file)
-                for row in reader:
-                    library_list.append(self.media_maker(row))
+                for index, row in enumerate(reader):
+                    try:
+                        library_list.append(self.media_maker(row))
+                    except Exception:
+                        messagebox.showerror("File Error", f"Filerow {index+2} not loaded")
+                        continue
                 print("library loaded")
                 return library_list        
         #if file doesnt exist, create one with headers
@@ -107,9 +111,10 @@ class Library:
             media (str): string representation of a media object
         """
         duplicate = self.match_media(str(media))
-        if duplicate == "No Match":
-            return
-        else:
+        
+        try:
+            duplicate == "No Match"
+        except:
             messagebox.showerror("Duplicate warning", f"Duplicate Media Found:\n{duplicate}")
             raise
 
@@ -202,14 +207,6 @@ class Library:
                     return other_media #return matching media
         return "No Match"
 
-
-    #def is_duplicate(self, media, other_media):
-    #    return media.media_type == other_media.media_type and str(media) == str(other_media)
-
-    # def print_from_list(self, list):
-    #     """because search results will be a list, \n will not be interpreted correctly"""
-    #     return [print(item) for item in list]
-
     def is_close_match(self, term:str, media:str, cutoff:float=0.4):
         """returns True if term is a near match. this isnt the best way to do searches because it doesnt work with short keyword searches
         
@@ -224,12 +221,13 @@ class Library:
         media_list = [media]
         return len(get_close_matches(term,media_list, cutoff=cutoff)) == 1
 
-    def search_media(self, query:str, search_type:str)-> list:
+    def search_media(self, query:str, search_type:str, filter_by: str="None")-> list:
         """title search, returns a list. Does not need to be exact match
         
         Args:
             query (str): search term 
-            search_type: 'Title', 'Creator', or 'Genre' type search
+            search_type (str): 'Title', 'Creator', or 'Genre' type search
+            filter_by (str): filters by None, Book, Audiobook, or Dvd
 
         Returns:
             list: list containing search results
@@ -242,6 +240,10 @@ class Library:
             results = [media for media in self.library_contents if self.is_close_match(query, media.creator.name)]
         elif search_type == "Genre":
             results = [media for media in self.library_contents if self.is_close_match(query, media.genre)]
+        print(filter_by, type(filter_by))
+        if filter_by != "None":
+            results = [media for media in results if media.media_type == filter_by]
+
         #note that printing from this list directly will screw up formatting
         return results if len(results)>0 else "No results"
 
