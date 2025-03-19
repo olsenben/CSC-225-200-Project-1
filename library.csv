@@ -1,6 +1,7 @@
 date_added,media_type,title,year,creator,creator_dob,genre,pages,book_type,duration,narrator,features
-2025-03-13 17:38:25.614143,Book,Dilla Time,2022,Dan Charnas,1967,"Biography, Music",480,Nonfiction,,,
-2025-03-13 17:42:00.408195,Dvd,The Abyss,1989,James Cameron,1954,Action,,,480,,
+2025-03-13 17:38:25.614143,Book,Dilla Time,2022,Dan Charnas,1967,"Biography, Music",480,NonFiction,,,
+2025-03-13 17:42:00.408195,Dvd,The Abyss,1989,James Cameron,1954,Action,,,165,,"Ed Harris, Mary Mastrantonio, Michael Beihn"
 2025-03-15 21:56:55.420593,AudioBook,The Fellowship of the Ring,1954,John Ronald Reuel Tolkien,1892,Fantasy,423,Fiction,1358,Andy Serkis,
 2025-03-15 22:19:21.147772,Book,This Is What It Sounds Like,2022,Susan Rogers,1956,Music,288,NonFiction,,,
 2025-03-16 16:23:41.961680,Dvd,Star Wars: Episode I - The Phantom Menace,1999,George Lucas,1969,Science Fiction,,,134,,"Liam Neeson, Ewan Mcgregor, Natalie Portman"
+2025-03-19 12:40:21.413861,Dvd,Van Helsing,2004,Stephen Sommers,2004,Fantasy,,,131,,"Hugh Jackman, Kate Beckinsale, Richard Roxburgh"

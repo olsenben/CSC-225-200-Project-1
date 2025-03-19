@@ -2,16 +2,19 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from Library import *
+import copy
+
 
 class AddMediaWindow(tk.Toplevel):
+    """Class to hold window for user to enter data for creating isntances of media objects"""
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
-        self.withdraw()
+        self.parent = parent #reference to main window
+        self.withdraw() #initalize hidden
         self.frame = tk.Frame(self)
         self.frame.pack()
         self.title = "Add New Media"
-        self.media_types = ["Book", "AudioBook","Dvd"]
+        self.media_types = ["Book", "AudioBook","Dvd"] #current available media types
         self.media_match = None #store media object to be updated
 
         #combobox label
@@ -28,7 +31,6 @@ class AddMediaWindow(tk.Toplevel):
         #Labels for entry widgets
         #again I really have no idea how you're supposed to organize a massive group like this
         #probably generating them dynamically and storing in a list or dict
-        #I have not included checks to ensure all fields are filled correctly. honor system lol
         self.title_entry = ttk.Entry(self.frame)
         self.title_entry_label = ttk.Label(self.frame, text="Title")
 
@@ -65,8 +67,7 @@ class AddMediaWindow(tk.Toplevel):
         self.cancel_button = tk.Button(self.frame, text="Cancel", command=self.go_home)
         self.cancel_button.grid(row=4,column=0)
 
-        #add or update button button
-                    
+        #add or update button button       
         self.update_button = tk.Button(self.frame, text="Update", command= lambda: [self.update_media(), self.go_home()])
         self.add_button = tk.Button(self.frame, text="Save", command= lambda: [self.add_media(), self.go_home()])
 
@@ -144,14 +145,13 @@ class AddMediaWindow(tk.Toplevel):
             self.features_entry.grid(row=3, column=6)
 
     def add_media(self):
-        """adds media to library contents from entry fields. ONLY CHECKS THAT ALL FIELDS ARE FILLED"""
+        """adds media to library contents from entry fields."""
         
         #validate entry fields
         fields = self.get_fields()
         validated_fields = self.validate_fields(fields)
         
         #get dictionary of input fields
-
         try:    
             if self.media_var.get() == "Book":
                 self.parent.library.add_book(**validated_fields)
@@ -162,11 +162,15 @@ class AddMediaWindow(tk.Toplevel):
         except ValueError:
             #check that all fields are filled out. digits are validated separately 
             messagebox.showerror("Input Error", "Please fill all fields") 
-            return
+            raise
 
     def validate_fields(self,fields: dict) -> dict:
         """validates entry inputs and raises appropriate errors if they are filled incorrectly, 
-        otherwise returns dictionary of inputs"""
+        otherwise returns dictionary of inputs
+        
+        Args:
+            fields (dict): dictionary of all gathered input fields
+        """
         #fields that need their digits checked
         digit_fields = ["year", "creator_dob", "pages", "duration"]        
 
@@ -180,13 +184,19 @@ class AddMediaWindow(tk.Toplevel):
             pass
         else:
             messagebox.showerror("Input Error", "Please input valid genre with no numbers or special characters")
-            return
+            raise
 
         #return validated dictionary
         return fields
 
     def check_valid_digit(self, entry: str, digit_type: str):
-        """checks if the digit type matches expected length and format (year, pages, duration)"""
+        """checks if the digit type matches expected length and format (year, pages, duration)
+        
+        Args:
+            entry (str): data to be validated
+            digit_type (str): year (or creator dob which is a year), pages, or duration
+        
+        """
         #I was really generous with the upper limits, honestly not sure if they're necessary
         if digit_type == "year" or "creator_dob":
             check_len = 4
@@ -201,20 +211,23 @@ class AddMediaWindow(tk.Toplevel):
             upper, lower = 0, 200000
             digit_format = ''
 
+        #check that they are digits and correct length
         if entry.isdigit() and len(entry) == check_len:
             try:
+                #try converting to integer
                 as_int = int(entry)
+                #check that it is within limits
                 if lower < as_int < upper:
                     pass
                 else:
                     messagebox.showerror("Input Error", f"Please input valid {digit_type} between {upper} and {lower}")
-                    return
+                    raise
             except ValueError:
                 messagebox.showerror("Input Error", f"Please input valid {digit_type}{digit_format}")
-                return
+                raise
         else:
             messagebox.showerror("Input Error", f"Please input valid {digit_type}{digit_format}")
-            return
+            raise
  
     
 
@@ -349,17 +362,34 @@ class AddMediaWindow(tk.Toplevel):
         creator_name = fields.pop('creator')
         creator_dob = fields.pop('creator_dob')
 
+        #create a copy of object for use in checking for duplcates
+        media_match = copy.deepcopy(self.media_match)
+
         #pass them explicitly 
+        media_match.creator.name = creator_name
+        media_match.creator.year_of_birth = creator_dob
+
+        #update attributes for object saved in self.media_match to check for duplicates
+        for key, value in fields.items():
+
+            if hasattr(media_match, key):
+                setattr(media_match, key, value)
+         
+        print([i.genre for i in self.parent.library.library_contents])
+ 
+        #check for duplicates
+        self.parent.library.check_for_duplicate(str(media_match))
+        
+        #update nested fields explicitly for object in memory
         media_to_update.creator.name = creator_name
         media_to_update.creator.year_of_birth = creator_dob
 
-        #update attributes
+        #now set values for object in library memory
         for key, value in fields.items():
 
             if hasattr(media_to_update, key):
                 setattr(media_to_update, key, value)
-        
-        
+
         #update library csv
         self.parent.library.update_media_file()
 

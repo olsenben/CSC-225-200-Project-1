@@ -83,9 +83,12 @@ class LibraryApp(tk.Tk):
 
     def perform_search(self):
         """triggers search and updates treeview"""
-        query = self.search_entry.get().strip()
+        
+        #get the query and search type 
+        query = self.search_entry.get().strip().lower()
         search_type = self.search_type.get()
 
+        #search for results
         results = self.library.search_media(query, search_type)#using get_close_matches. its okay, not the best
 
         #clear old results tree
@@ -94,7 +97,7 @@ class LibraryApp(tk.Tk):
 
         #results will be a string 'no results' if there are no results
         #it will be a list if anything is found
-        #a combobox is organized as a dictionary if I recall correctly
+        #a treeview is organized as a dictionary if I recall correctly
         if isinstance(results, list): 
             for media in results:
                 self.results_tree.insert("", "end", values=(media.title, media.creator,media.media_type,media.date_added), tags=(media,))
@@ -135,29 +138,38 @@ class LibraryApp(tk.Tk):
             media_match = self.library.match_media(media_str) 
             #pass the object to the editor to prepopulate fields
             self.add_media_window.show_edit_window(media_match)
+        #check for selection 
         except IndexError:
             messagebox.showerror("Input Error", "Nothing Selected")
+            
 
     # Sorting function
     def sort_treeview(self,tree, col, descending):
-        """Sorts the Treeview column when clicked."""
-        # Get data from treeview
+        """Sorts the Treeview column when clicked.
+        
+        Args:
+            tree (object): Treeview widget
+            col (str): column name
+            descending (Bool): False = ascending, True = descending
+        
+        """
+        #Get data from treeview
         data_list = [(tree.set(item, col), item) for item in tree.get_children("")]
 
-        # Try converting to integer for proper sorting (e.g., sorting years numerically)
+        #try to convert to int to integer for proper sorting (e.g., sorting years numerically)
         try:
             data_list = [(int(val), item) for val, item in data_list]
         except ValueError:
             pass  # Keep as strings if conversion fails
 
-        # Sort data according to descending or ascending, False = ascending, True = descending
+        #sort according to descending or ascending, 
         data_list.sort(reverse=descending)
 
-        # Rearrange items in tree
+        #rearrange items in tree by index
         for index, (val, item) in enumerate(data_list):
             tree.move(item, "", index)
 
-        # Toggle sorting order for next click
+        #toggle sorting order for next click
         self.sort_order[col] = not descending
         tree.heading(col, text=col, command=lambda: self.sort_treeview(tree, col, self.sort_order[col]))
     

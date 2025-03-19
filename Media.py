@@ -31,9 +31,9 @@ class Book(Media):
     def __str__(self):
         return (
             f"Title: {self.title}\n"
-            f"Author: {self.creator.name}\n"
+            f"Author: {self.creator}\n"
             f"Published: {self.year}\n"
-            f"Length: {self.pages}\n"
+            f"Pages: {self.pages}\n"
             f"Type: {self.book_type}\n"
             f"Genre: {self.genre}"
         )
@@ -50,7 +50,7 @@ class AudioBook(Book):
     def __str__(self):
         return (
             f"Title: {self.title}\n"
-            f"Author: {self.creator.name}\n"
+            f"Author: {self.creator}\n"
             f"Published: {self.year}\n"
             f"Genre: {self.genre}\n"
             f"Duration: {self.duration}min\n"
@@ -69,7 +69,7 @@ class Dvd(Media):
     def __str__(self):
         return (
             f"Title: {self.title}\n"
-            f"Director: {self.creator.name}\n"
+            f"Director: {self.creator}\n"
             f"Released: {self.year}\n"
             f"Genre: {self.genre}\n"
             f"Duration: {self.duration}min\n"
