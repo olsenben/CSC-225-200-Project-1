@@ -24,3 +24,4 @@ All dependencies are default to python. To run, clone repo and run LibraryFrontE
 -I really didn't design this to handle a large database, so don't push it too much\
 -You cannot convert media types in editing. I have no idea why, it really should be possible but it just does not work and I am out of energy\
 -the majority of the work went into building a GUI, which I decided to add after writing much of the back end. I did my best to document everything but it's a little messy under the hood.
+-almost forgot, but scrollbar is not working. Nasty one.
